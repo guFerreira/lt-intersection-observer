@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Div Virtualizada com Intersection Observer</title>
+  <style>
+    .viewport {
+      height: 250px;
+      overflow-y: auto;
+    }
+    .item {
+      height: 50px;
+      margin: 5px;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="viewport" id="viewport">
+    <div id="items-container">
+      <!-- Aqui, vamos adicionar os itens dinamicamente usando JavaScript -->
+    </div>
+  </div>
+
+  <script>
+    // Função para criar os itens da "div virtualizada"
+    function createItem(itemIndex) {
+      const item = document.createElement('div');
+      item.classList.add('item');
+      item.innerText = `Item ${itemIndex}`;
+      return item;
+    }
+
+    // Função para carregar os itens iniciais
+    function loadInitialItems() {
+      const totalItems = 1000;
+      const visibleItems = 5;
+      const itemsContainer = document.getElementById('items-container');
+
+      for (let i = 0; i < visibleItems; i++) {
+        const item = createItem(i);
+        item.dataset.itemIndex = i;
+        itemsContainer.appendChild(item);
+      }
+
+      // Configura o Intersection Observer para carregar mais itens quando necessário
+      const observer = new IntersectionObserver(intersectionCallback, {
+        root: document.getElementById('viewport'),
+        rootMargin: '0px',
+        threshold: 0
+      });
+
+      const lastItem = itemsContainer.lastElementChild;
+      if (lastItem) {
+        observer.observe(lastItem);
+      }
+    }
+
+    // Função de retorno de chamada para o Intersection Observer
+    function intersectionCallback(entries, observer) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const itemsContainer = document.getElementById('items-container');
+          const lastLoadedItemIndex = parseInt(itemsContainer.lastElementChild.dataset.itemIndex, 10);
+          const totalItems = 1000;
+          const visibleItems = 5;
+          const startIndex = lastLoadedItemIndex + 1;
+          const endIndex = Math.min(startIndex + visibleItems - 1, totalItems - 1);
+
+          for (let i = startIndex; i <= endIndex; i++) {
+            const item = createItem(i);
+            item.dataset.itemIndex = i;
+            observer.observe(item);
+            itemsContainer.appendChild(item);
+          }
+
+          // Remove o observador do último item carregado anteriormente
+          observer.unobserve(entry.target);
+
+          // Configura o observador no novo último item
+          const newLastItem = itemsContainer.lastElementChild;
+          if (newLastItem) {
+            observer.observe(newLastItem);
+          }
+        } else {
+          // O item saiu da tela, então o removemos do DOM
+          entry.target.remove();
+        }
+      });
+    }
+
+    // Carrega os itens iniciais ao carregar a página
+    loadInitialItems();
+  </script>
+</body>
+</html>

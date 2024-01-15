@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LT Intersection Observer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&display=swap" rel="stylesheet">
+</head>
+
+<style>
+
+  .card-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Roboto';
+    font-weight: 800;
+  }
+
+  .card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    margin: 12px;
+    width: 300px;
+    height: 100px;
+    background-color: rgb(0, 0, 0);
+    transform: scaleX(0.5);
+    opacity: 0;
+    transition: 150ms;
+    border-radius: 12px;
+  }
+
+  .show{
+    background-color: rgb(254, 227, 48);
+    transform: scaleX(1);
+    opacity: 1;
+  }
+</style>
+
+<body>
+  <div class="card-container">
+    <div class="card">LT - INTERSECTION OBSERVER</div>
+    <div class="card">Desafio</div>
+    <div class="card">Tente</div>
+    <div class="card">Chegar</div>
+    <div class="card">Até</div>
+    <div class="card">O</div>
+    <div class="card">Fim</div>
+    <div class="card">Você consegue!</div>
+    <div class="card">Eu acredito em você</div>
+    <div class="card">Ta quase lá</div>
+    <div class="card">Só mais um pouquinho</div>
+  </div>
+  
+</body>
+</html>
+
+<script>
+
+  const cards = document.querySelectorAll('.card')
+
+  const options = {
+    threshold: 0.5,// % em que o elemento precisa estar interseccionado
+    rootMarging: '100px'
+  }
+
+  const obserser = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      entry.target.classList.toggle('show', entry.isIntersecting) // adiciono a classe show quando estiver sendo exibido na tela
+      // if (entry.isIntersecting){
+      //   obserser.unobserve(entry.target)
+      // }
+    })
+  }, options)
+
+  cards.forEach(card => {
+    obserser.observe(card)
+  })
+
+  const cardContainer = document.querySelector('.card-container')
+
+  const lastCardObserver = new IntersectionObserver((entries) => {
+    const lastCard = entries[0]
+    if(!lastCard.isIntersecting) {
+      return
+    }
+    loadNewCards()
+    lastCardObserver.unobserve(lastCard.target)
+    lastCardObserver.observe(document.querySelector(".card:last-child"))
+  }, options)
+
+  lastCardObserver.observe(document.querySelector('.card:last-child'))
+
+  const loadNewCards = () => {
+    for (let i = 0; i < 10; i++) {
+      const newCard = document.createElement('div')
+      newCard.textContent = getFraseMotivacional()
+      newCard.classList.add('card')
+      obserser.observe(newCard)
+      cardContainer.append(newCard)
+    }
+  }
+
+  const frasesMotivacionais= [
+    "Você é capaz!",
+    "Mais um pouquinho",
+    "Vai desistir agora?",
+    "Você consegue",
+    "Boraaa",
+    "Não desista, você está perto!",
+    "Mais um esforço e você chega lá.",
+    "Continue rolando, você está quase no fim!",
+    "Não pare agora, você está no caminho certo.",
+    "Você está se aproximando do seu objetivo, siga em frente!",
+    "Não deixe de acreditar em si mesmo, você consegue!",
+    "Continue avançando, a vitória está logo ali!",
+    "Você está progredindo, mantenha o ritmo!",
+    "Não pare agora, o sucesso está ao seu alcance!"
+  ];
+
+  function getFraseMotivacional() {
+    const min = 0
+    const max = frasesMotivacionais.length -1
+    
+    const numeroAleatorio = Math.floor(Math.random() * (max - min + 1)) + min;
+
+    return frasesMotivacionais[numeroAleatorio];
+  }
+
+</script>
